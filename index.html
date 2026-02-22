@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام تسجيل</title>
+
+<style>
+body{
+    margin:0;
+    font-family:'Segoe UI', sans-serif;
+    background:linear-gradient(135deg,#141e30,#243b55);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    background:white;
+    width:400px;
+    padding:35px;
+    border-radius:20px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.3);
+}
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
+}
+
+.input-group{
+    margin-bottom:15px;
+    text-align:right;
+}
+
+.input-group label{
+    font-size:14px;
+    color:#555;
+}
+
+.input-group input,
+.input-group select{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    outline:none;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    background:#243b55;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#141e30;
+}
+
+.footer{
+    text-align:center;
+    margin-top:15px;
+    font-size:14px;
+}
+
+.footer a{
+    cursor:pointer;
+    color:#243b55;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.hidden{
+    display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- تسجيل الدخول -->
+    <div id="loginForm">
+        <h2>تسجيل الدخول</h2>
+
+        <div class="input-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="loginEmail">
+        </div>
+
+        <div class="input-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="loginPassword">
+        </div>
+
+        <button onclick="login()">دخول</button>
+
+        <div class="footer">
+            ليس لديك حساب؟ 
+            <a onclick="showRegister()">إنشاء حساب</a>
+        </div>
+    </div>
+
+
+    <!-- إنشاء حساب -->
+    <div id="registerForm" class="hidden">
+        <h2>إنشاء حساب جديد</h2>
+
+        <div class="input-group">
+            <label>الاسم الكامل</label>
+            <input type="text" id="name">
+        </div>
+
+        <div class="input-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="email">
+        </div>
+
+        <div class="input-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="password">
+        </div>
+
+        <div class="input-group">
+            <label>تأكيد كلمة المرور</label>
+            <input type="password" id="confirmPassword">
+        </div>
+
+        <button onclick="register()">إنشاء حساب</button>
+
+        <div class="footer">
+            لديك حساب؟ 
+            <a onclick="showLogin()">تسجيل الدخول</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showRegister(){
+    document.getElementById("loginForm").classList.add("hidden");
+    document.getElementById("registerForm").classList.remove("hidden");
+}
+
+function showLogin(){
+    document.getElementById("registerForm").classList.add("hidden");
+    document.getElementById("loginForm").classList.remove("hidden");
+}
+
+function register(){
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let password = document.getElementById("password").value;
+    let confirm = document.getElementById("confirmPassword").value;
+
+    if(password !== confirm){
+        alert("كلمة المرور غير متطابقة");
+        return;
+    }
+
+    localStorage.setItem("userEmail", email);
+    localStorage.setItem("userPassword", password);
+
+    alert("تم إنشاء الحساب بنجاح");
+    showLogin();
+}
+
+function login(){
+    let email = document.getElementById("loginEmail").value;
+    let password = document.getElementById("loginPassword").value;
+
+    let savedEmail = localStorage.getItem("userEmail");
+    let savedPassword = localStorage.getItem("userPassword");
+
+    if(email === savedEmail && password === savedPassword){
+        alert("تم تسجيل الدخول بنجاح");
+    }else{
+        alert("بيانات غير صحيحة");
+    }
+}
+</script>
+
+</body>
+</html>
