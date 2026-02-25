@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAERX PRO - FINAL 2026</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { min-height: 100vh; background: #060a16; display: flex; justify-content: center; align-items: center; padding: 20px; color: #fff; }
+        
+        .card-wrapper { padding: 3px; border-radius: 32px; background: linear-gradient(90deg, #ff0000, #ffae00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); background-size: 400%; animation: snake 15s linear infinite; width: 100%; max-width: 430px; }
+        @keyframes snake { 0% { background-position: 0% 50% } 100% { background-position: 400% 50% } }
+        
+        .card { background: #0f172a; border-radius: 30px; padding: 35px 28px; width: 100%; position: relative; }
+        .brand { text-align: center; font-size: 48px; font-weight: 900; margin-bottom: 25px; color: #ffae00; text-shadow: 0 0 10px #ff6a00; letter-spacing: 5px; }
+        
+        .tabs { display: flex; background: #1f2937; border-radius: 16px; margin-bottom: 20px; padding: 2px; }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #9ca3af; border-radius: 14px; transition: 0.3s; font-weight: bold; }
+        .tab.active { background: linear-gradient(90deg, #7c3aed, #3b82f6); color: white; }
+        
+        .input-group { margin-bottom: 12px; position: relative; }
+        .input { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #374151; background: #0f172a; color: #fff; outline: none; transition: 0.3s; font-size: 14px; }
+        .input:focus { border-color: #3b82f6; }
+        
+        .has-eye { padding-left: 45px; }
+        .eye-icon { position: absolute; left: 15px; top: 14px; cursor: pointer; font-size: 18px; color: #6b7280; user-select: none; }
+        
+        .strength-meter { display: flex; gap: 6px; margin: 5px 5px 10px 5px; }
+        .bar { height: 6px; flex: 1; background: #262f3f; border-radius: 10px; transition: 0.3s; }
+        
+        .button { width: 100%; padding: 15px; border: none; border-radius: 14px; color: white; font-weight: 700; cursor: pointer; font-size: 16px; transition: 0.2s; margin-top: 5px; }
+        .btn-main { background: linear-gradient(90deg, #7c3aed, #3b82f6); }
+        .verify-btn { background: linear-gradient(90deg, #166534, #22c55e) !important; margin-bottom: 8px; }
+        .btn-secondary { background: #4b5563; }
+        
+        .error-msg { color: #ff4d4d; font-size: 11px; display: none; text-align: right; padding-right: 5px; margin-top: 4px; font-weight: 500; }
+        .success { display: none; background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; padding: 12px; border-radius: 12px; color: #22c55e; text-align: center; margin-top: 10px; font-size: 13px; font-weight: 600; }
+
+        .country-selected { background: #0f172a; border: 1px solid #374151; padding: 14px; border-radius: 14px; cursor: pointer; display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+        .country-list { position: absolute; width: 100%; background: #1f2937; border-radius: 14px; max-height: 0; overflow: hidden; transition: .4s; z-index: 1000; top: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .country-list.open { max-height: 250px; overflow-y: auto; border: 1px solid #374151; }
+        .country-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #2d3748; display: flex; justify-content: space-between; font-size: 13px; }
+        .country-item:hover { background: #374151; }
+        
+        .link-text { text-align: center; margin-top: 18px; font-size: 13px; color: #9ca3af; cursor: pointer; text-decoration: underline; }
+        #registerBox, #forgotBox { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card-wrapper">
+    <div class="card">
+        <div class="brand">TAERX</div>
+
+        <div class="tabs" id="mainTabs">
+            <div class="tab active" id="tab-login" onclick="switchTab('login')">دخول</div>
+            <div class="tab" id="tab-reg" onclick="switchTab('register')">تسجيل</div>
+        </div>
+
+        <div id="loginBox">
+            <div class="input-group">
+                <input type="email" class="input" id="l-email" placeholder="البريد الإلكتروني">
+            </div>
+            <div class="input-group">
+                <input type="password" class="input has-eye" id="l-pass" placeholder="كلمة المرور">
+                <span class="eye-icon" onclick="togglePass('l-pass')">👁</span>
+            </div>
+            <button class="button btn-main" onclick="handleLogin()">دخول</button>
+            <p class="link-text" onclick="switchTab('forgot')">نسيت كلمة المرور؟</p>
+        </div>
+
+        <div id="registerBox">
+            <div class="input-group">
+                <input type="text" class="input" id="r-name" placeholder="الاسم الكامل" oninput="hideErr('err-name')">
+                <div id="err-name" class="error-msg">يرجى إدخال اسمك الكامل</div>
+            </div>
+            <div style="position:relative">
+                <div class="country-selected" onclick="toggleCountry()"><span id="c-text">🇸🇦 السعودية (+966)</span><span>▼</span></div>
+                <div class="country-list" id="c-list"></div>
+            </div>
+            <div class="input-group">
+                <input type="tel" class="input" id="phone" value="+966" dir="ltr" oninput="hideErr('err-phone')">
+                <div id="err-phone" class="error-msg">يرجى إدخال رقم هاتف صالح (8 أرقام على الأقل)</div>
+            </div>
+            <div class="input-group">
+                <input type="email" class="input" id="r-email" placeholder="البريد الإلكتروني" oninput="hideErr('err-email')">
+                <div id="err-email" class="error-msg">يرجى إدخال بريد إلكتروني صالح</div>
+            </div>
+            <div class="input-group">
+                <input type="password" class="input has-eye" id="r-pass" placeholder="كلمة المرور" oninput="checkStrength()">
+                <span class="eye-icon" onclick="togglePass('r-pass')">👁</span>
+                <div id="err-pass" class="error-msg">كلمة المرور يجب أن تكون 6 أرقام على الأقل</div>
+            </div>
+            <div class="strength-meter">
+                <div class="bar" id="b1"></div><div class="bar" id="b2"></div><div class="bar" id="b3"></div>
+            </div>
+            <div class="input-group">
+                <input type="password" class="input has-eye" id="r-conf" placeholder="تأكيد كلمة المرور">
+                <span class="eye-icon" onclick="togglePass('r-conf')">👁</span>
+            </div>
+            <button class="button btn-main" onclick="handleRegister()">إنشاء حساب</button>
+        </div>
+
+        <div id="forgotBox">
+            <div class="input-group">
+                <input type="email" class="input" id="f-email" placeholder="البريد الإلكتروني" oninput="hideForgotErr()">
+                <div id="f-email-err" class="error-msg">هذا البريد غير مسجل لدينا</div>
+            </div>
+            <div class="input-group">
+                <input type="text" class="input" id="f-code" placeholder="الرمز">
+                <div id="f-code-err" class="error-msg">الرمز المدخل غير صحيح</div>
+            </div>
+            <button class="button verify-btn" onclick="verifyCode()">تأكيد</button>
+            <button class="button btn-secondary" onclick="sendFake()">إرسال</button>
+            <div id="f-success" class="success"></div>
+            <p class="link-text" onclick="switchTab('login')">رجوع للدخول</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// قائمة الـ 92 دولة
+const countries = [
+    {n:"السعودية", c:"+966", f:"🇸🇦"}, {n:"العراق", c:"+964", f:"🇮🇶"}, {n:"مصر", c:"+20", f:"🇪🇬"}, {n:"الإمارات", c:"+971", f:"🇦🇪"}, {n:"الكويت", c:"+965", f:"🇰🇼"}, {n:"قطر", c:"+974", f:"🇶🇦"}, {n:"عمان", c:"+968", f:"🇴🇲"}, {n:"البحرين", c:"+973", f:"🇧🇭"}, {n:"الأردن", c:"+962", f:"🇯🇴"}, {n:"لبنان", c:"+961", f:"🇱🇧"}, {n:"فلسطين", c:"+970", f:"🇵🇸"}, {n:"سوريا", c:"+963", f:"🇸🇾"}, {n:"اليمن", c:"+967", f:"🇾🇪"}, {n:"ليبيا", c:"+218", f:"🇱🇾"}, {n:"السودان", c:"+249", f:"🇸🇩"}, {n:"المغرب", c:"+212", f:"🇲🇦"}, {n:"الجزائر", c:"+213", f:"🇩🇿"}, {n:"تونس", c:"+216", f:"🇹🇳"}, {n:"موريتانيا", c:"+222", f:"🇲🇷"}, {n:"جيبوتي", c:"+253", f:"🇩🇯"}, {n:"الصومال", c:"+252", f:"🇸🇴"}, {n:"جزر القمر", c:"+269", f:"🇰🇲"}, {n:"تركيا", c:"+90", f:"🇹🇷"}, {n:"أمريكا", c:"+1", f:"🇺🇸"}, {n:"بريطانيا", c:"+44", f:"🇬🇧"}, {n:"ألمانيا", c:"+49", f:"🇩🇪"}, {n:"فرنسا", c:"+33", f:"🇫🇷"}, {n:"إيطاليا", c:"+39", f:"🇮🇹"}, {n:"إسبانيا", c:"+34", f:"🇪🇸"}, {n:"روسيا", c:"+7", f:"🇷🇺"}, {n:"الصين", c:"+86", f:"🇨🇳"}, {n:"اليابان", c:"+81", f:"🇯🇵"}, {n:"الهند", c:"+91", f:"🇮🇳"}, {n:"كندا", c:"+1", f:"🇨🇦"}, {n:"أستراليا", c:"+61", f:"🇦🇺"}, {n:"البرازيل", c:"+55", f:"🇧🇷"}, {n:"المكسيك", c:"+52", f:"🇲🇽"}, {n:"هولندا", c:"+31", f:"🇳🇱"}, {n:"السويد", c:"+46", f:"🇸🇪"}, {n:"سويسرا", c:"+41", f:"🇨🇭"}, {n:"النمسا", c:"+43", f:"🇦🇹"}, {n:"اليونان", c:"+30", f:"🇬🇷"}, {n:"بولندا", c:"+48", f:"🇵🇱"}, {n:"البرتغال", c:"+351", f:"🇵🇹"}, {n:"ماليزيا", c:"+60", f:"🇲🇾"}, {n:"تايلاند", c:"+66", f:"🇹🇭"}, {n:"فيتنام", c:"+84", f:"🇻🇳"}, {n:"الفلبين", c:"+63", f:"🇵🇭"}, {n:"إندونيسيا", c:"+62", f:"🇮🇩"}, {n:"سنغافورة", c:"+65", f:"🇸🇬"}, {n:"جنوب أفريقيا", c:"+27", f:"🇿🇦"}, {n:"نيجيريا", c:"+234", f:"🇳🇬"}, {n:"كينيا", c:"+254", f:"🇰🇪"}, {n:"إثيوبيا", c:"+251", f:"🇪🇹"}, {n:"أذربيجان", c:"+994", f:"🇦🇿"}, {n:"جورجيا", c:"+995", f:"🇬🇪"}, {n:"أوزبكستان", c:"+998", f:"🇺🇿"}, {n:"كازاخستان", c:"+7", f:"🇰🇿"}, {n:"أوكرانيا", c:"+380", f:"🇺🇦"}, {n:"النرويج", c:"+47", f:"🇳🇴"}, {n:"الدنمارك", c:"+45", f:"🇩🇰"}, {n:"فنلندا", c:"+358", f:"🇫🇮"}, {n:"أيرلندا", c:"+353", f:"🇮🇪"}, {n:"بلجيكا", c:"+32", f:"🇧🇪"}, {n:"المجر", c:"+36", f:"🇭🇺"}, {n:"رومانيا", c:"+40", f:"🇷🇴"}, {n:"بلغاريا", c:"+359", f:"🇧🇬"}, {n:"صربيا", c:"+381", f:"🇷🇸"}, {n:"كرواتيا", c:"+385", f:"🇭🇷"}, {n:"سلوفاكيا", c:"+421", f:"🇸🇰"}, {n:"ليتوانيا", c:"+370", f:"🇱🇹"}, {n:"لاتفيا", c:"+371", f:"🇱🇻"}, {n:"إستونيا", c:"+372", f:"🇪🇪"}, {n:"آيسلندا", c:"+354", f:"🇮🇸"}, {n:"مالطا", c:"+356", f:"🇲🇹"}, {n:"قبرص", c:"+357", f:"🇨🇾"}, {n:"إيران", c:"+98", f:"🇮🇷"}, {n:"باكستان", c:"+92", f:"🇵🇰"}, {n:"بنغلاديش", c:"+880", f:"🇧🇩"}, {n:"سريلانكا", c:"+94", f:"🇱🇰"}, {n:"نيوزيلندا", c:"+64", f:"🇳🇿"}, {n:"تشيلي", c:"+56", f:"🇨🇱"}, {n:"كولومبيا", c:"+57", f:"🇨🇴"}, {n:"الأرجنتين", c:"+54", f:"🇦🇷"}, {n:"بيرو", c:"+51", f:"🇵🇪"}, {n:"فنزويلا", c:"+58", f:"🇻🇪"}, {n:"بنما", c:"+507", f:"🇵🇦"}, {n:"كوستاريكا", c:"+506", f:"🇨🇷"}, {n:"باراغواي", c:"+595", f:"🇵🇾"}, {n:"الأوروغواي", c:"+598", f:"🇺🇾"}, {n:"أندورا", c:"+376", f:"🇦🇩"}, {n:"موناكو", c:"+377", f:"🇲🇨"}
+];
+
+// استرجاع البيانات المحفوظة عند تحميل الصفحة
+window.onload = function() {
+    const savedEmail = localStorage.getItem('last_email');
+    const savedPass = localStorage.getItem('last_pass');
+    if (savedEmail) document.getElementById('l-email').value = savedEmail;
+    if (savedPass) document.getElementById('l-pass').value = savedPass;
+};
+
+const clist = document.getElementById('c-list');
+countries.sort((a,b)=>a.n.localeCompare(b.n)).forEach(c => {
+    const item = document.createElement('div');
+    item.className = 'country-item';
+    item.innerHTML = `<span>${c.f} ${c.n}</span> <span>${c.c}</span>`;
+    item.onclick = () => {
+        document.getElementById('c-text').innerText = `${c.f} ${c.n} (${c.c})`;
+        document.getElementById('phone').value = c.c;
+        clist.classList.remove('open');
+    };
+    clist.appendChild(item);
+});
+
+function toggleCountry() { clist.classList.toggle('open'); }
+function togglePass(id) { const i = document.getElementById(id); i.type = i.type === 'password' ? 'text' : 'password'; }
+function hideErr(id) { document.getElementById(id).style.display = 'none'; }
+function hideForgotErr() { document.getElementById('f-email-err').style.display = 'none'; }
+
+function switchTab(t) {
+    document.getElementById('loginBox').style.display = t==='login'?'block':'none';
+    document.getElementById('registerBox').style.display = t==='register'?'block':'none';
+    document.getElementById('forgotBox').style.display = t==='forgot'?'block':'none';
+    document.getElementById('mainTabs').style.display = t==='forgot'?'none':'flex';
+    document.getElementById('tab-login').className = t==='login'?'tab active':'tab';
+    document.getElementById('tab-reg').className = t==='register'?'tab active':'tab';
+    document.querySelectorAll('.error-msg, .success').forEach(el => el.style.display='none');
+}
+
+function checkStrength() {
+    hideErr('err-pass');
+    const p = document.getElementById('r-pass').value;
+    const b1 = document.getElementById('b1'), b2 = document.getElementById('b2'), b3 = document.getElementById('b3');
+    b1.style.background = b2.style.background = b3.style.background = "#262f3f";
+    if(p.length > 0) {
+        if(p.length < 6) { b1.style.background = "#ff4d4d"; }
+        else if(p.length < 10) { b1.style.background = b2.style.background = "#ffcc00"; }
+        else { b1.style.background = b2.style.background = b3.style.background = "#22c55e"; }
+    }
+}
+
+function handleRegister() {
+    const name = document.getElementById('r-name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('r-email').value.trim();
+    const pass = document.getElementById('r-pass').value;
+    let valid = true;
+
+    if (name === "") { document.getElementById('err-name').style.display = 'block'; valid = false; }
+    const phoneDigits = phone.replace(/\D/g, ''); 
+    if (phoneDigits.length < 8) { document.getElementById('err-phone').style.display = 'block'; valid = false; }
+    if (email === "" || !email.includes('@')) { document.getElementById('err-email').style.display = 'block'; valid = false; }
+    if (pass.length < 6) { document.getElementById('err-pass').style.display = 'block'; valid = false; }
+
+    if (valid) {
+        // حفظ بيانات المستخدم في السجل
+        localStorage.setItem('user_' + email, pass);
+        // حفظ آخر بيانات لغرض التعبئة التلقائية
+        localStorage.setItem('last_email', email);
+        localStorage.setItem('last_pass', pass);
+        
+        // تعبئة خانات تسجيل الدخول مباشرة
+        document.getElementById('l-email').value = email;
+        document.getElementById('l-pass').value = pass;
+        
+        alert("تم إنشاء حسابك! تم تعبئة البيانات في خانة الدخول.");
+        switchTab('login');
+    }
+}
+
+function handleLogin() {
+    const email = document.getElementById('l-email').value.trim();
+    const pass = document.getElementById('l-pass').value;
+
+    // التحقق من وجود الحساب
+    if (localStorage.getItem('user_' + email) === pass) {
+        // حفظ البيانات ليظل مسجل الدخول عند العودة
+        localStorage.setItem('last_email', email);
+        localStorage.setItem('last_pass', pass);
+        // الانتقال لصفحة الهوم
+        window.location.href = "home.html";
+    } else {
+        alert("البريد الإلكتروني أو كلمة المرور غير صحيحة، أو الحساب غير موجود.");
+    }
+}
+
+let canVerify = false;
+function sendFake() {
+    const email = document.getElementById('f-email').value.trim();
+    const errorMsg = document.getElementById('f-email-err');
+    const successBox = document.getElementById('f-success');
+    
+    if (email === "") {
+        errorMsg.innerText = "يرجى إدخال البريد الإلكتروني أولاً";
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    if (localStorage.getItem('user_' + email)) {
+        errorMsg.style.display = 'none';
+        successBox.innerText = "تم إرسال رمز إلى بريد " + email;
+        successBox.style.display = 'block';
+        canVerify = true;
+        setTimeout(() => { successBox.style.display = 'none'; }, 3000);
+    } else {
+        errorMsg.innerText = "هذا البريد غير مسجل لدينا";
+        errorMsg.style.display = 'block';
+        canVerify = false;
+    }
+}
+
+function verifyCode() {
+    if (canVerify) {
+        const code = document.getElementById('f-code').value;
+        if (code === "") document.getElementById('f-code-err').style.display = 'block';
+        else alert("الرمز غير صالح!");
+    } else {
+        alert("يرجى إرسال الرمز للبريد أولاً");
+    }
+}
+</script>
+</body>
+</html>
